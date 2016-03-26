@@ -3,4 +3,5 @@
 .classpath
 .mvn
 *.log
-target
+bin
+gradle
