@@ -1,5 +1,9 @@
 package com.devmpv.config;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
+
 import javax.jdo.JDOEnhancer;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManagerFactory;
@@ -12,16 +16,35 @@ import org.springframework.context.annotation.Configuration;
 
 import com.devmpv.model.Post;
 
+/**
+ * JDO configuration
+ * 
+ * @author user1
+ */
 @Configuration
 public class ChanConfig {
 
-	@Bean
-	public JDOEnhancer jdoEnhancer() {
+	//@formatter:off
+	private static final Set<Class<?>> ENTITIES = new HashSet<Class<?>>(Arrays.asList(
+				Post.class, Thread.class
+			));
+	//@formatter:on
+
+	/**
+	 * Enhances entities
+	 * 
+	 * @return set of entity names
+	 */
+	public Set<String> jdoEnhance() {
+		Set<String> names = new HashSet<String>();
 		JDOEnhancer enhancer = JDOHelper.getEnhancer();
+		ENTITIES.forEach(e -> {
+			names.add(e.getName());
+			enhancer.addClasses(e.getName());
+		});
 		enhancer.setVerbose(true);
-		enhancer.addClasses(Post.class.getName());
 		enhancer.enhance();
-		return enhancer;
+		return names;
 	}
 
 	/**
@@ -32,20 +55,8 @@ public class ChanConfig {
 	@Bean
 	@ConfigurationProperties
 	public PersistenceManagerFactory persistenceManagerFactory() {
-		/*
-		 * PersistenceUnitMetaData pumd = new
-		 * PersistenceUnitMetaData("ChanForge", "RESOURCE_LOCAL", null);
-		 * pumd.addClassName(Post.class.getName());
-		 * pumd.setExcludeUnlistedClasses();
-		 * pumd.addProperty("javax.jdo.ConnectionDriverName", driver);
-		 * pumd.addProperty("javax.jdo.ConnectionURL", url);
-		 * pumd.addProperty("javax.jdo.ConnectionUserName", user);
-		 * pumd.addProperty("javax.jdo.ConnectionPassword", password);
-		 * pumd.addProperty("datanucleus.autoCreateSchema", "true");
-		 */
-
 		PersistenceUnitMetaData pumd = new PersistenceUnitMetaData("ChanForge", "RESOURCE_LOCAL", null);
-		pumd.addClassName(Post.class.getName());
+		pumd.addClassNames(jdoEnhance());
 		pumd.setExcludeUnlistedClasses();
 		System.getProperties().entrySet().stream().filter(a -> {
 			String key = ((String) a.getKey());
@@ -53,5 +64,4 @@ public class ChanConfig {
 		}).forEach(a -> pumd.addProperty((String) a.getKey(), (String) a.getValue()));
 		return new JDOPersistenceManagerFactory(pumd, null);
 	}
-
 }
