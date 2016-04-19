@@ -8,7 +8,7 @@ import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
 
 /**
- * Definition of a Post
+ * Definition of a post
  */
 @PersistenceCapable
 public class Post {

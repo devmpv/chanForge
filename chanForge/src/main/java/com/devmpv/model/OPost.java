@@ -3,7 +3,7 @@ package com.devmpv.model;
 import javax.jdo.annotations.PersistenceCapable;
 
 /**
- * Definition of a Post
+ * Definition of a originating post
  */
 @PersistenceCapable
 public class OPost extends Post {
