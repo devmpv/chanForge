@@ -3,6 +3,8 @@ package com.devmpv.model;
 import java.util.Date;
 
 import javax.jdo.annotations.IdGeneratorStrategy;
+import javax.jdo.annotations.Inheritance;
+import javax.jdo.annotations.InheritanceStrategy;
 import javax.jdo.annotations.PersistenceCapable;
 import javax.jdo.annotations.Persistent;
 import javax.jdo.annotations.PrimaryKey;
@@ -11,6 +13,7 @@ import javax.jdo.annotations.PrimaryKey;
  * Definition of a post
  */
 @PersistenceCapable
+@Inheritance(strategy = InheritanceStrategy.COMPLETE_TABLE)
 public class Post {
 	@PrimaryKey
 	@Persistent(valueStrategy = IdGeneratorStrategy.NATIVE)
