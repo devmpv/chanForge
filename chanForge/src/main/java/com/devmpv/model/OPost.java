@@ -6,9 +6,9 @@ import javax.jdo.annotations.PersistenceCapable;
  * Definition of a originating post
  */
 @PersistenceCapable
-public class OPost extends Post {
+public class OPost extends RPost {
 
-	public OPost(String name, String description, Post parent) {
+	public OPost(String name, String description, RPost parent) {
 		super(name, description, parent);
 	}
 

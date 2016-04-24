@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.orm.jdo.support.SpringPersistenceManagerProxyBean;
 
 import com.devmpv.model.OPost;
-import com.devmpv.model.Post;
+import com.devmpv.model.RPost;
 
 /**
  * JDO configuration
@@ -29,16 +29,24 @@ public class ChanConfig {
 
 	//@formatter:off
 	private static final Set<Class<?>> ENTITIES = new HashSet<Class<?>>(Arrays.asList(
-				Post.class, OPost.class
+				RPost.class,
+				OPost.class
 			));
+	private static final Set<String> NAMES = getEntityNames();
 	//@formatter:on
+
+	private static Set<String> getEntityNames() {
+		Set<String> result = new HashSet<>();
+		ENTITIES.forEach(e -> result.add(e.getName()));
+		return result;
+	}
 
 	/**
 	 * Enhances entities
 	 * 
 	 * @return set of entity names
 	 */
-	public Set<String> jdoEnhance() {
+	public static void jdoEnhance() {
 		Set<String> names = new HashSet<String>();
 		JDOEnhancer enhancer = JDOHelper.getEnhancer();
 		ENTITIES.forEach(e -> {
@@ -47,7 +55,6 @@ public class ChanConfig {
 		});
 		enhancer.setVerbose(true);
 		enhancer.enhance();
-		return names;
 	}
 
 	/**
@@ -59,7 +66,7 @@ public class ChanConfig {
 	@ConfigurationProperties
 	public PersistenceManagerFactory persistenceManagerFactory() {
 		PersistenceUnitMetaData pumd = new PersistenceUnitMetaData("ChanForge", "RESOURCE_LOCAL", null);
-		pumd.addClassNames(jdoEnhance());
+		pumd.addClassNames(NAMES);
 		pumd.setExcludeUnlistedClasses();
 		System.getProperties().entrySet().stream().filter(a -> {
 			String key = ((String) a.getKey());

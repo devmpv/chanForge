@@ -8,7 +8,7 @@ import com.devmpv.model.Post;
 public interface ChanDAO {
 	Collection<Post> getThread(long id);
 
-	Collection<OPost> getThreads();
+	Collection<OPost> getThreads(long... id);
 
-	void storePost(Post post);
+	long storePost(Post post);
 }
