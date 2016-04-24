@@ -1,5 +1,6 @@
 package com.devmpv.model.dao;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.inject.Inject;
@@ -27,8 +28,20 @@ public class ChanDAOImpl implements ChanDAO {
 
 	@Override
 	public Collection<OPost> getThreads(long... id) {
-		Query<OPost> query = pmProxy.getObject().newQuery(OPost.class);
-		Collection<OPost> result = query.executeList();
+		PersistenceManager pm = pmProxy.getObject();
+		Transaction tx = pm.currentTransaction();
+		Collection<OPost> result = new ArrayList<>();
+		try {
+			tx.begin();
+			Query<OPost> query = pm.newQuery(OPost.class);
+			result = pm.detachCopyAll(query.executeList());
+			tx.commit();
+		} finally {
+			if (tx.isActive()) {
+				tx.rollback();
+			}
+			pm.close();
+		}
 		return result;
 	}
 
