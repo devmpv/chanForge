@@ -2,7 +2,7 @@ package com.devmpv.model.dao;
 
 import java.util.Collection;
 
-import com.devmpv.model.OPost;
+import com.devmpv.model.OriginatingPost;
 import com.devmpv.model.Post;
 
 public interface ChanDAO {
@@ -10,7 +10,7 @@ public interface ChanDAO {
 
 	Collection<Post> getThread(long id);
 
-	Collection<OPost> getThreads(Collection<Long> ids);
+	Collection<OriginatingPost> getThreads(Collection<Long> ids);
 
 	long storePost(Post post);
 }

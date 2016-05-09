@@ -12,9 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.devmpv.model.OPost;
+import com.devmpv.model.OriginatingPost;
 import com.devmpv.model.Post;
-import com.devmpv.model.RPost;
 import com.devmpv.model.dao.ChanDAO;
 
 @RestController
@@ -36,17 +35,17 @@ public class PostController {
 
 	@RequestMapping(method = RequestMethod.GET, path = "/thread")
 	@ResponseBody
-	public Collection<OPost> getThreads() {
+	public Collection<OriginatingPost> getThreads() {
 		return dao.getThreads(new ArrayList<>());
 	}
 
 	@RequestMapping(method = RequestMethod.POST, path = "/thread/{id}")
-	public long newPost(@PathVariable(value = "id") long id, @RequestBody RPost post) {
+	public long newPost(@PathVariable(value = "id") long id, @RequestBody Post post) {
 		return dao.storePost(post);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, path = "/thread")
-	public long newThread(@RequestBody OPost post) {
+	public long newThread(@RequestBody OriginatingPost post) {
 		return dao.storePost(post);
 	}
 }

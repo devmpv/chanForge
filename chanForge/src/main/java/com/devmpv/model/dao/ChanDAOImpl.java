@@ -12,9 +12,8 @@ import org.springframework.orm.jdo.TransactionAwarePersistenceManagerFactoryProx
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.devmpv.model.OPost;
+import com.devmpv.model.OriginatingPost;
 import com.devmpv.model.Post;
-import com.devmpv.model.RPost;
 
 @Component
 public class ChanDAOImpl implements ChanDAO {
@@ -26,9 +25,18 @@ public class ChanDAOImpl implements ChanDAO {
 	@Transactional
 	public boolean deletePost(long id) {
 		PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
-		pm.deletePersistent(pm.getObjectById(id));
+		pm.deletePersistent(getPost(pm, id));
 		pm.close();
 		return true;
+	}
+
+	private Post getPost(PersistenceManager pm, long id) {
+		Query<Post> query = pm.newQuery(Post.class);
+		query.setUnique(true);
+		query.setFilter("id == post_id");
+		query.declareParameters("long post_id");
+		Post result = (Post) query.execute(id);
+		return result;
 	}
 
 	@Override
@@ -43,10 +51,10 @@ public class ChanDAOImpl implements ChanDAO {
 
 	@Override
 	@Transactional
-	public Collection<OPost> getThreads(Collection<Long> ids) {
+	public Collection<OriginatingPost> getThreads(Collection<Long> ids) {
 		PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
-		Collection<OPost> result = new ArrayList<>();
-		Query<OPost> query = pm.newQuery(OPost.class);
+		Collection<OriginatingPost> result = new ArrayList<>();
+		Query<OriginatingPost> query = pm.newQuery(OriginatingPost.class);
 		result = pm.detachCopyAll(query.executeList());
 		pm.close();
 		return result;
@@ -56,10 +64,10 @@ public class ChanDAOImpl implements ChanDAO {
 	@Transactional
 	public long storePost(Post post) {
 		PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
-		if (((RPost) post).getId() == 0) {
+		if (post.getId() == 0) {
 			pm.makePersistent(post);
 		}
 		pm.close();
-		return ((RPost) post).getId();
+		return post.getId();
 	}
 }

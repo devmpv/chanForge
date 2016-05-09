@@ -19,8 +19,9 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.orm.jdo.TransactionAwarePersistenceManagerFactoryProxy;
 
-import com.devmpv.model.OPost;
-import com.devmpv.model.RPost;
+import com.devmpv.model.OriginatingPost;
+import com.devmpv.model.Post;
+import com.devmpv.model.SimplePost;
 
 /**
  * JDO and Datanucleus configuration
@@ -32,8 +33,9 @@ public class ChanConfig {
 
 	//@formatter:off
 	private static final Set<Class<?>> ENTITIES = new HashSet<Class<?>>(Arrays.asList(
-				RPost.class,
-				OPost.class
+				Post.class,
+				SimplePost.class,
+				OriginatingPost.class
 			));
 	private static final Set<String> NAMES = getEntityNames();
 	//@formatter:on
