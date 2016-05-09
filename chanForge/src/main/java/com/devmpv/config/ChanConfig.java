@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.inject.Inject;
 import javax.jdo.JDOEnhancer;
 import javax.jdo.JDOHelper;
 import javax.jdo.PersistenceManager;
@@ -11,18 +12,20 @@ import javax.jdo.PersistenceManagerFactory;
 
 import org.datanucleus.api.jdo.JDOPersistenceManagerFactory;
 import org.datanucleus.metadata.PersistenceUnitMetaData;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.jdo.support.SpringPersistenceManagerProxyBean;
+import org.springframework.core.env.AbstractEnvironment;
+import org.springframework.core.env.Environment;
+import org.springframework.core.env.MapPropertySource;
+import org.springframework.orm.jdo.TransactionAwarePersistenceManagerFactoryProxy;
 
 import com.devmpv.model.OPost;
 import com.devmpv.model.RPost;
 
 /**
- * JDO configuration
+ * JDO and Datanucleus configuration
  * 
- * @author user1
+ * @author pmuravyov
  */
 @Configuration
 public class ChanConfig {
@@ -57,21 +60,35 @@ public class ChanConfig {
 		enhancer.enhance();
 	}
 
+	@Inject
+	private Environment env;
+
+	/*
+	 * @Bean public JdoTransactionManager jdoTransactionManager() { return new
+	 * JdoTransactionManager(persistenceManagerProxyBean().
+	 * getTargetPersistenceManagerFactory()); }
+	 */
+
 	/**
 	 * Configuration of DataNucleus {@link PersistenceManagerFactory}
 	 * 
 	 * @return {@link PersistenceManagerFactory}
 	 */
 	@Bean
-	@ConfigurationProperties
 	public PersistenceManagerFactory persistenceManagerFactory() {
 		PersistenceUnitMetaData pumd = new PersistenceUnitMetaData("ChanForge", "RESOURCE_LOCAL", null);
 		pumd.addClassNames(NAMES);
 		pumd.setExcludeUnlistedClasses();
-		System.getProperties().entrySet().stream().filter(a -> {
-			String key = ((String) a.getKey());
-			return key.startsWith("javax.jdo.") || key.startsWith("datanucleus.");
-		}).forEach(a -> pumd.addProperty((String) a.getKey(), (String) a.getValue()));
+		((AbstractEnvironment) env).getPropertySources().forEach(source -> {
+			if (source instanceof MapPropertySource) {
+				((MapPropertySource) source).getSource().entrySet().stream().filter(entry -> {
+					String key = (entry.getKey());
+					return key.startsWith("javax.jdo.") || key.startsWith("datanucleus.");
+				}).forEach(entry -> {
+					pumd.addProperty(entry.getKey(), (String) entry.getValue());
+				});
+			}
+		});
 		return new JDOPersistenceManagerFactory(pumd, null);
 	}
 
@@ -81,10 +98,9 @@ public class ChanConfig {
 	 * @return
 	 */
 	@Bean
-	public SpringPersistenceManagerProxyBean persistenceManagerProxyBean() {
-		SpringPersistenceManagerProxyBean proxyBean = new SpringPersistenceManagerProxyBean();
-		proxyBean.setPersistenceManagerFactory(persistenceManagerFactory());
-		proxyBean.afterPropertiesSet();
+	public TransactionAwarePersistenceManagerFactoryProxy persistenceManagerProxyBean() {
+		TransactionAwarePersistenceManagerFactoryProxy proxyBean = new TransactionAwarePersistenceManagerFactoryProxy();
+		proxyBean.setTargetPersistenceManagerFactory(persistenceManagerFactory());
 		return proxyBean;
 	}
 }

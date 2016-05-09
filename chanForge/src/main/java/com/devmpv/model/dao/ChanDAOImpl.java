@@ -2,14 +2,15 @@ package com.devmpv.model.dao;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.jdo.PersistenceManager;
 import javax.jdo.Query;
-import javax.jdo.Transaction;
 
-import org.springframework.orm.jdo.support.SpringPersistenceManagerProxyBean;
+import org.springframework.orm.jdo.TransactionAwarePersistenceManagerFactoryProxy;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.devmpv.model.OPost;
 import com.devmpv.model.Post;
@@ -19,56 +20,46 @@ import com.devmpv.model.RPost;
 public class ChanDAOImpl implements ChanDAO {
 
 	@Inject
-	private SpringPersistenceManagerProxyBean pmProxy;
+	private TransactionAwarePersistenceManagerFactoryProxy pmProxy;
 
 	@Override
-	public Collection<Post> getThread(long id) {
-		return null;
+	@Transactional
+	public boolean deletePost(long id) {
+		PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
+		pm.deletePersistent(pm.getObjectById(id));
+		pm.close();
+		return true;
 	}
 
 	@Override
-	public Collection<OPost> getThreads(long... id) {
-		PersistenceManager pm = pmProxy.getObject();
-		Transaction tx = pm.currentTransaction();
-		Collection<OPost> result = new ArrayList<>();
-		try {
-			tx.begin();
-			Query<OPost> query = pm.newQuery(OPost.class);
-			result = pm.detachCopyAll(query.executeList());
-			tx.commit();
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
-			}
-			pm.close();
-		}
+	@Transactional
+	public Collection<Post> getThread(long id) {
+		PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
+		List<Post> result = new ArrayList<Post>();
+		result.add((Post) pm.getObjectById(id));
+		pm.close();
 		return result;
 	}
 
 	@Override
-	public long storePost(Post post) {
-		PersistenceManager pm = pmProxy.getObject();
-		Transaction tx = pm.currentTransaction();
-		try {
-			tx.begin();
-
-			// Owner is new, so persist it
-			if (((RPost) post).getId() == 0) {
-				pm.makePersistent(post);
-			}
-			// Owner exists, so update it
-			else {
-				// *** TODO Store the updated owner ***
-			}
-
-			tx.commit();
-		} finally {
-			if (tx.isActive()) {
-				tx.rollback();
-			}
-			pm.close();
-		}
-		return ((RPost) post).getId();
+	@Transactional
+	public Collection<OPost> getThreads(Collection<Long> ids) {
+		PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
+		Collection<OPost> result = new ArrayList<>();
+		Query<OPost> query = pm.newQuery(OPost.class);
+		result = pm.detachCopyAll(query.executeList());
+		pm.close();
+		return result;
 	}
 
+	@Override
+	@Transactional
+	public long storePost(Post post) {
+		PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
+		if (((RPost) post).getId() == 0) {
+			pm.makePersistent(post);
+		}
+		pm.close();
+		return ((RPost) post).getId();
+	}
 }
