@@ -2,7 +2,6 @@ package com.devmpv.model.dao;
 
 import javax.inject.Inject;
 import javax.jdo.PersistenceManager;
-import javax.jdo.Query;
 
 import org.springframework.orm.jdo.TransactionAwarePersistenceManagerFactoryProxy;
 import org.springframework.stereotype.Component;
@@ -14,30 +13,27 @@ public class CommonDAOImpl implements CommonDAO {
 	private TransactionAwarePersistenceManagerFactoryProxy pmProxy;
 
 	@Override
-	public void deleteObject(Class<?> type, long id) {
-		PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
-		Object obj = pm.getObjectById(id);
-		pm.deletePersistent(obj);
+	public void delete(Class<?> type, long id) throws Exception {
+		PersistenceManager pm = getPM();
+		pm.deletePersistent(get(type, id));
 	}
 
 	@Override
-	public Object getObject(Class<?> type, long id) {
-		Query<?> query = pmProxy.getObject().getPersistenceManager().newQuery(type);
-		query.setUnique(true);
-		query.setFilter("id == object_id");
-		query.declareParameters("long object_id");
-		query.setParameters(id);
-		return query.executeUnique();
+	public Object get(Class<?> type, long id) throws Exception {
+		Object result = getPM().getObjectById(type, id);
+		if (null == result) {
+			throw new Exception("Object not found [type=" + type.getName() + ", id=" + id + "]");
+		}
+		return result;
+	}
+
+	private PersistenceManager getPM() {
+		return pmProxy.getObject().getPersistenceManager();
 	}
 
 	@Override
-	public long saveObject(Object object) {
-		/*
-		 * PersistenceManager pm = pmProxy.getObject().getPersistenceManager();
-		 * if (object.getId() == 0) { pm.makePersistent(object); } pm.close();
-		 * return object.getId();
-		 */
+	public long save(Object object) {
+		getPM().makePersistent(object);
 		return 0;
 	}
-
 }

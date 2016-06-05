@@ -32,6 +32,8 @@ repositories {
 
 dependencies {
 	compile 'org.springframework.boot:spring-boot-starter-web'
+	compile 'org.springframework.boot:spring-boot-starter-websocket'
+	compile 'org.springframework:spring-messaging'
 	compile 'org.datanucleus:datanucleus-core:5.0.0-m3'
 	compile 'org.datanucleus:datanucleus-api-jdo:5.0.0-m3'
 	compile 'org.datanucleus:datanucleus-api-rest:5.0.0-m3'

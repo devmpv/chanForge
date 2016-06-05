@@ -1,9 +1,9 @@
 package com.devmpv.model.dao;
 
 public interface CommonDAO {
-	void deleteObject(Class<?> type, long id);
+	void delete(Class<?> type, long id) throws Exception;
 
-	Object getObject(Class<?> type, long id);
+	Object get(Class<?> type, long id) throws Exception;
 
-	long saveObject(Object object);
+	long save(Object object);
 }

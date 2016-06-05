@@ -1,4 +1,5 @@
 package com.devmpv;
+
 import com.devmpv.config.ChanConfig;
 
 /**
@@ -12,5 +13,4 @@ public class Enhancer {
 	public static void main(String[] args) {
 		ChanConfig.jdoEnhance();
 	}
-
 }

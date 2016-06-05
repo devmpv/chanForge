@@ -65,12 +65,6 @@ public class ChanConfig {
 	@Inject
 	private Environment env;
 
-	/*
-	 * @Bean public JdoTransactionManager jdoTransactionManager() { return new
-	 * JdoTransactionManager(persistenceManagerProxyBean().
-	 * getTargetPersistenceManagerFactory()); }
-	 */
-
 	/**
 	 * Configuration of DataNucleus {@link PersistenceManagerFactory}
 	 * 
